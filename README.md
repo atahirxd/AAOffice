@@ -1,5 +1,5 @@
 # AAOffice
-Mini projects catering to student productivity to offer productivity and motivation to combat the additional stress caused by the latest online mode of education. Built in C++ with Nana Library and OOP concepts. It contains apps:
+Mini projects catering to student productivity to offer productivity and motivation to combat the additional stress caused by the latest online mode of education. Built in C++ with Nana Library and OOP concepts. IDE used was MS Visual Studio 2019. It contains apps:
 - POMOTimer (a POMODORO timer app)
 - HelpDesk (a student FAQ app)
 - REFLECT (student motivational app) <br><br>
