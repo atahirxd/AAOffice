@@ -1,0 +1,336 @@
+#include <memory>
+#include <vector>
+#include <map>
+#include <nana/deploy.hpp>
+#include <nana/gui.hpp>
+#include <nana/gui/place.hpp>
+#include <nana/gui/widgets/button.hpp>
+#include <nana/gui/widgets/combox.hpp>
+#include <nana/gui/widgets/label.hpp>
+#include <nana/gui/widgets/progress.hpp>
+#include <nana/gui/widgets/tabbar.hpp>
+#include <nana/gui/widgets/panel.hpp>
+#include <nana/gui/widgets/listbox.hpp>
+#include <nana/gui/widgets/treebox.hpp>
+#include <nana/gui/widgets/checkbox.hpp>
+#include <nana/gui/widgets/date_chooser.hpp>
+#include <nana/gui/widgets/textbox.hpp>
+#include <nana/gui/widgets/categorize.hpp>
+#include <nana/gui/widgets/group.hpp>
+#include <nana/gui/timer.hpp>
+#include <nana/gui/tooltip.hpp>
+#include <nana/filesystem/filesystem_ext.hpp>
+#include <iostream>
+#include <windows.h>
+#include <stdlib.h>
+#include <time.h>
+
+using namespace std;
+
+class Quotes {		//class for generating quotes
+public:
+    string genQuotes();
+};
+
+string Quotes::genQuotes() {		//random motivation quotes generator
+    srand(time(NULL));
+    int genRand = 1 + rand() % 15;
+    switch (genRand) {
+    case 1:
+        return "\"The road to success and the road to failure are almost exactly the same.\" -C. Davis";
+        break;
+    case 2:
+        return "\"The beautiful thing about learning is that no one can take it away from you.\" -King";
+        break;
+    case 3:
+        return "\"Education is the most powerful weapon you can use to change the world.\" -King";
+        break;
+    case 4:
+        return "\"The mind is not a vessel to be filled but a fire to be ignited.\" -Plutarch";
+        break;
+    case 5:
+        return "\"Don't let what you cannot do interfere with what you can do.\" -J. Wooden";
+        break;
+    case 6:
+        return "\"Learning is never done without errors and defeat.\" -Vladimir Lenin";
+        break;
+    case 7:
+        return "\"You don't have to be great to start, but you have to start to be great.\" -Ziglar";
+        break;
+    case 8:
+        return "\"The expert in anything was once a beginner.\" -Helen Hayes.";
+        break;
+    case 9:
+        return "\"There are no shortcuts to any place worth going.\" -Beverly Stills";
+        break;
+    case 10:
+        return "\"The best way to predict your future is to create it.\" -Abraham Lincoln";
+        break;
+    case 11:
+        return "\"The future belongs to those who believe in the beauty of their dreams.\" -E. R";
+        break;
+    case 12:
+        return "\"Opportunities don't happen. You create them.\" -Chris Grosser";
+        break;
+    case 13:
+        return "\"All progress takes place outside the comfort zone.\" -M. Bobak";
+        break;
+    case 14:
+        return "\"We may encounter many defeats but we must not be defeated.\" -Maya Angelou";
+        break;
+    default:
+        return "\"A person who never made a mistake never tried anything new.\" -Albert Einstein";
+    }
+}
+
+class Question {		//class for random self-reflection question generation
+public:
+    string genQues();
+};
+
+string Question::genQues() {		//random generator for self-reflection quotes
+    srand(time(NULL));
+    int genRand = 1 + rand() % 15;
+    switch (genRand) {
+    case 1:
+        return "What is the most important thing that you learnt today?";
+        break;
+    case 2:
+        return "What can you do with what you know at this moment?";
+        break;
+    case 3:
+        return "Are you using your time wisely?";
+        break;
+    case 4:
+        return "Are you letting matters that are out of your control stress you out?";
+        break;
+    case 5:
+        return "Are you achieving the goals you've set for yourself?";
+        break;
+    case 6:
+        return "What worries you the most about the future?";
+        break;
+    case 7:
+        return "What matters the most in your life?";
+        break;
+    case 8:
+        return "What has been the greatest positive impact on your life?";
+        break;
+    case 9:
+        return "Which is worse: failing or never trying?";
+        break;
+    case 10:
+        return "What's the one thing you'd like others to remember about you always?";
+        break;
+    case 11:
+        return "When all is said and done, what will you have said more than you've done?";
+        break;
+    case 12:
+        return "What are some things that prevent you from learning?";
+        break;
+    case 13:
+        return "What is the motto that you live by?";
+        break;
+    case 14:
+        return "How can you take what you have learned and apply it to your own life?";
+        break;
+    default:
+        return "What are your long-term and short-term goals?";
+    }
+}
+
+class Info {            //class for information
+public:
+    string about(), credits();      //member functions
+};
+
+string Info::about() {      //about the app
+    return "ABOUT AAOFFICE REFLECT\n\nThis app is catered towards students who are struggling with motivation. Its features include motivational quotes to help inspire you and self-reflecting questions to rethink and enforce your goals every time. It also includes a breathing exercise to help calm your nerves. At the end of the day, all of us are struggling but with a little bit of perseverance, all of us can get through it.";
+}
+
+string Info::credits() {        //credits
+    return "CREDITS\n\nAyesha Tahir\tBSCS-10A\nAzka Khan\tBSCS-10A\nLIBRARY\t\tNANA";
+}
+
+namespace demo          //gui programming starts
+{
+    using namespace nana;
+    namespace fs = std::filesystem;
+    namespace fs_ext = nana::filesystem_ext;
+
+    class widget_show : public form         //derived class to display widgets and set general settings
+    {
+        place        place_{ *this };
+
+        timer        timer_;
+
+        group        simple_{ *this,  "<bold=true, color=0x20988c>REFLECT</>", true /*formated*/ },     //setting and creating titles of div's with formatting
+            buttons_{ simple_,  "<bold=true>About</>", true },
+            comboxes_{ simple_,  "<bold=true>Motivating Tips</>", true },
+            labels_{ simple_,  "<bold=true>Quote of the Day</>", true },
+            labels2_{ simple_,  "<bold=true>Self-REFLECTion Question of the Day</>", true },
+            progreses_{ simple_,  "<bold=true>Breathing Exercise</> (hover for instructions)", true };
+
+        button       b_n{ buttons_,  ("About REFLECT") },       //creation of buttons with titles
+            b_i{ buttons_,  ("Credits") };
+        combox       cb_e{ comboxes_,  ("Motivational exercises") },        //creation of combox with titles
+            cb_h{ comboxes_,  ("Healthy habits") },
+            cb_u2{ comboxes_,  ("Unhealthy habits") };
+
+        label            lab{ labels_ }, lab2{ labels2_ };          //creation of labels
+        progress progr_u{ progreses_ };         //creating of breathing exercise bar by using unknown progress bar
+    
+    public:
+        widget_show()           //setting details of widgets
+            : form(API::make_center(800, 720), appear::decorate<appear::sizable>())         //setting form size and responsiveness
+        {
+            nana::API::track_window_size(*this, { 300,300 }, false); //minimum
+            this->caption(("REFLECT v1.0"));        //window title of app
+            place_.div(R"(vertical
+                                   <weight=30% min=260 <weight=10> <simples gap=3 margin=5> >
+                                   <weight=20 tab >
+                                   <tab_frame>        )");              //form settings
+
+            place_["simples"] << simple_;
+            simple_.div("vertical all   min=600 gap=10 margin=5");          //div settings
+            simple_["all"] << labels_ << buttons_ << labels2_ << comboxes_ << progreses_;       //setting order of widgets
+
+            _m_init_buttons();          //buttons details
+            _m_init_comboxs();          //combox details
+            _m_init_labels();           //label details
+            _m_init_progresses();       //progress bar details
+           
+            this->events().unload([this](const arg_unload& ei)          //generating msgbox upon clicking on 'X'
+                {
+                    msgbox mb(*this, ("Quit"), msgbox::yes_no);         //setting title as well as type of "yes/no"
+                    mb.icon(mb.icon_question) << ("Are you sure you want to exit?");        //setting type as question and message
+                    ei.cancel = (mb() == mb.pick_no);           //exiting app upon choosing "no"
+                });
+            place_.collocate();
+        };
+
+    private:
+        void _m_init_buttons()      //setting button details
+        {
+            Info i;             //creation of object of info
+            buttons_.div("buttons min=25 gap=5 margin=3");      //setting button arrangement
+            buttons_["buttons"] << b_n << b_i;                  //setting button order
+
+            msgbox mb{ *this,  "About" };                       //msgbox for info about app
+            mb.icon(mb.icon_information) << i.about();          //message of information type msgbox called through member function
+            msgbox mb1{ *this,  "Credits" };                    //msgbox for displaying credits
+            mb1.icon(mb1.icon_information) << i.credits();      //message of information type msgbox called through member function 
+
+            b_n.events().click(mb);                             //calling of msgboxes upon clicking on buttons                 
+            b_i.events().click(mb1);            
+        }
+
+        void _m_init_comboxs()          //seeting combox details
+        {
+            comboxes_.div("buttons  min=25 gap=5 margin=3");        //setting div settings
+            comboxes_["buttons"] << cb_e << cb_h << cb_u2;          //setting order of comboxes
+
+            cb_e.push_back(("Break down tasks"));                   //dropdown list for motivational exercises
+            cb_e.push_back(("Getting started"));
+            cb_e.push_back(("Moodboard"));
+            cb_e.push_back(("POMODORO"));
+            cb_e.push_back(("Quotes/affirmations"));
+            cb_e.push_back(("Prioritize"));
+            cb_e.push_back(("Breathing exercise"));
+            cb_e.push_back(("Breaks"));
+
+            cb_h.push_back(("Took breaks"));                    //dropdown list for healthy habits
+            cb_h.push_back(("No meal skipped"));
+            cb_h.push_back(("Made proper study schedule"));
+            cb_h.push_back(("Turned off distractions"));
+            cb_h.push_back(("Reviewed material regularly"));
+            cb_h.push_back(("Got a good night's sleep"));
+            cb_h.push_back(("Reserved a study space"));
+            cb_h.push_back(("Set study goals"));
+
+            cb_u2.push_back(("Procrastinated"));            //dropdown list for unhealthy habits
+            cb_u2.push_back(("Read without understanding"));
+            cb_u2.push_back(("Crammed material"));
+            cb_u2.push_back(("Placed nearby distractions"));
+            cb_u2.push_back(("Skipped meals"));
+            cb_u2.push_back(("Not making a schedule"));
+            cb_u2.push_back(("Not setting a goal"));
+            cb_u2.push_back(("Took unecessary breaks"));
+
+            msgbox mb4(*this, ("Healthy habits"));              //msgbox for displaying info about healthy habits
+            mb4.icon(mb4.icon_information);                     //msgbox of type information
+            cb_h.events().selected([this, mb4](const nana::arg_combox& acmb) mutable            //displaying msgbox and message upon choosing drop down option
+                {
+                    mb4 << ("TAKING BREAKS:Taking small breaks in between helps one see the bigger picture and creates less stress and keeps one focused for longer periods of time. If you're unable to focus on something, take a little break, do something else and come back to it once you feel fresh.\n\nSKIPPING MEALS: If one skips no meals and has a balanced diet, it can help with energy, weight management and satisfaction.\n\nSCHEDULE: Making a schedule is very beneficial as it helps one break large tasks into smaller ones. It also helps in goal alignment.\n\nNO DISTRACTIONS: It can help you get done with tasks quicker; if there's something that remotely causes distraction, remove it during your study session.\n\nREGULAR REVIEWING: Reviewing material side by side is always good as it helps with preparation of finals and tests, so that there is less burden on you.\n\nGOOD NIGHT'S SLEEP: Getting a good 6-8 hours of sleep helps with focus and good health.\n\nSTUDY SPACE: Having a study space helps with getting into the right mindset for focusing.\n\nGOAL SETTING: Setting goals can be done in the form of a to-do list or mentally making a solid plan so that one stays on track.");
+                    mb4();
+                    //Clear the buffer, otherwise the mb shows the text generated in
+                    //the last selected event.
+                    mb4.clear();
+                });
+
+            msgbox mb1(*this, ("Unhealthy habits"));            //msgbox for displaying info about unhealthy habits
+            mb1.icon(mb1.icon_information);                     //msgbox of type information
+            cb_u2.events().selected([this, mb1](const nana::arg_combox& acmb) mutable   //displaying msgbox and message upon choosing drop down option
+                {
+                    mb1 << ("PROCRASTINATION: It has a negative effect on students' schoolwork and health. Students who procrastinate experience higher levels of frustration, guilt, stress and anxiety, in some cases leading to depression and low self-esteem.\n\nPLAIN READING: Plain reading enforces no concepts and can eventually even lead to CRAMMING which is just as harmful as more time might be spent on rote-learning rather than actually understanding the task at hand.\n\nDISTRACTIONS: Sometimes things that are distracting, such as any device or book which is not beneficial or is not contributing to the topic being studied, turn out to be a great hinderance in effective study time.");
+                    mb1();
+                    //Clear the buffer, otherwise the mb shows the text generated in
+                    //the last selected event.
+                    mb1.clear();
+                });
+
+            msgbox mb2(*this, ("Motivational exercises"));          //msgbox for displaying info about motivational exercises
+            mb2.icon(mb2.icon_information);                          //msgbox of type information
+            cb_e.events().selected([this, mb2](const nana::arg_combox& acmb) mutable            //displaying msgbox and message upon choosing drop down option
+                {
+                    mb2 << ("Here are just a few motivation building exercises if you're struggling with it:\n\n1. Write down your task and break it down into smaller tasks. It won't be long before your mind subconsciously starts building a game plan.\n\n2.If doing the whole task seems too difficult, just try it out for two minutes. This will help in building the initial and very necessary energy that one needs in order to begin a task in the first place.\n\n3. If you're a visual person, making a moodboard might help with motivation for your task. It can help build ideas. Consider using apps like Pinterest or Behance to spark inspiration.\n\n4.Use the POMODORO Technique to help you in breaking your tasks down. You can use AAOffice POMOTimer 2021 v1.0 to help understand this concept. In simple words, it is a time management technique.\n\n5.Look at and/or write down your favourite affirmations or quotes. This will help re-enforce the purpose or the necessity of the task at hand.\n\n6. Prioritize your work in order of how necessary its completion is or how urgently it is needed. Before you know it, you will find the motivation to hop on to doing the task.\n\n7. Do breathing exercises to help clear your mind. A breathing exercise is present in this module. Focus on the green blocks and inhale and exhale with each bar passing consecutively. If you have a tendency to overthink, because of the speed of your mind, you may find it difficult to focus. Try deep inhaling and exhaling, meditating or trying anxiety reducing breathing techniques to cope with such issues.\n\n8. It's important to reward yourself in order to stay motivated. This can be in the form of breaks such as watching a short video, having your favourite snack, or just giving your eyes some rest.");
+                    mb2();
+                    //Clear the buffer, otherwise the mb shows the text generated in
+                    //the last selected event.
+                    mb2.clear();
+                });        
+        }
+
+        void _m_init_labels()           //setting label details
+        {
+            Quotes q1;              //creating objects of quotes and question
+            Question qu;
+
+            labels_.div("buttons gap=0 min=25 margin=1");   //div settings
+
+            labels_["buttons"] << (q1.genQuotes()) << lab;  //label containing content called from member function for quotes
+            lab.format(true);
+
+            labels2_.div("buttons gap=0 min=25 margin=1");
+            labels2_["buttons"] << (qu.genQues()) << lab2;  //label containing content called from member function for questions
+            lab2.format(true);
+        }
+
+        void _m_init_progresses()           //progress bar details (breathing exercise)
+        {
+            progreses_.div("buttons gap=5 min=25 margin=3");        //div settings
+            progreses_["buttons"] << progr_u;       //setting order of progress bar(s)
+
+            progr_u.tooltip(("Breathe in and breathe out consecutively with each passing green block."));       //creation of tooltip which will display instructions upon hovering over the bar
+            progr_u.unknown(true);          //make progress bar of type unknown (blocks will keep passing by indefinitely)
+
+            timer_.elapse([this](const nana::arg_elapse& a)         //setting time interval for around 4 seconds for each passing block
+                {
+                    progr_u.inc();
+                });
+            timer_.interval(std::chrono::milliseconds{ 16 });
+            timer_.start();
+        }       
+    
+    };//end class widget_show
+
+    void go() {         //function to start executing gui
+        widget_show wdshow;
+        wdshow.show();
+        exec();
+    }
+}
+
+int main() {            //main start
+    demo::go();         //start interface form
+}       //main end
