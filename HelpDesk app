@@ -1,0 +1,332 @@
+#include <memory>
+#include <vector>
+#include <map>
+#include <nana/deploy.hpp>
+#include <nana/gui.hpp>
+#include <nana/gui/place.hpp>
+#include <nana/gui/widgets/button.hpp>
+#include <nana/gui/widgets/combox.hpp>
+#include <nana/gui/widgets/label.hpp>
+#include <nana/gui/widgets/progress.hpp>
+#include <nana/gui/widgets/tabbar.hpp>
+#include <nana/gui/widgets/panel.hpp>
+#include <nana/gui/widgets/listbox.hpp>
+#include <nana/gui/widgets/treebox.hpp>
+#include <nana/gui/widgets/checkbox.hpp>
+#include <nana/gui/widgets/date_chooser.hpp>
+#include <nana/gui/widgets/textbox.hpp>
+#include <nana/gui/widgets/categorize.hpp>
+#include <nana/gui/widgets/group.hpp>
+#include <nana/gui/timer.hpp>
+#include <nana/gui/tooltip.hpp>
+#include <nana/filesystem/filesystem_ext.hpp>
+#include <iostream>
+#include <windows.h>
+#include <stdlib.h>
+#include <time.h>
+
+using namespace std;
+
+class Responses {		//base class for random response generation
+public:
+    string genResp();
+};
+
+string Responses::genResp() {		//random response generation for confirmation of navigation option
+    srand(time(NULL));
+    int genRand = 1 + rand() % 6;
+    switch (genRand) {
+    case 1:
+        return "Got it.";
+        break;
+    case 2:
+        return "Understood.";
+        break;
+    case 3:
+        return "Choice confirmed.";
+        break;
+    case 4:
+        return "Displaying the required information...";
+        break;
+    case 5:
+        return "Okay.";
+        break;
+    default:
+        return "Option confirmed.";
+    }
+
+}
+
+class Intro : public Responses {		//derived class utlizing function overriding to randomly generate introductory dialogue by IRIS
+public:
+    string genResp();
+};
+
+string Intro::genResp() {		//overridden function definition
+    srand(time(NULL));
+    int genRand = 1 + rand() % 6;
+    switch (genRand) {
+    case 1:
+        return "Welcome to HelpDesk! I'm IRIS. How may I help you?";
+        break;
+    case 2:
+        return "Welcome to HelpDesk! I am IRIS. How may I be of assistance?";
+        break;
+    case 3:
+        return "Hello, I am IRIS. Welcome to HelpDesk! What do you need help with?";
+        break;
+    case 4:
+        return "Welcome to HelpDesk! I am IRIS. Do you need any help?";
+        break;
+    case 5:
+        return "Hi, I am IRIS. Welcome to HelpDesk! Can I help you?";
+        break;
+    default:
+        return "Hello. I am IRIS. Welcome to HelpDesk! If there is any problem, you can ask me.";
+    }
+
+}
+
+class Outro : public Responses {		//derived class utlizing function overriding to randomly generate exiting dialogue by IRIS
+public:
+    string genResp();
+};
+
+string Outro::genResp() {					//overridden function definition
+    srand(time(NULL));
+    int genRand = 1 + rand() % 6;
+    switch (genRand) {
+    case 1:
+        return "Goodbye! Quit?";
+        break;
+    case 2:
+        return "Feel free to come back any time. Quit?";
+        break;
+    case 3:
+        return "For any further questions, you may come back again. Quit?";
+        break;
+    case 4:
+        return "HelpDesk will entertain any queries if needed. Quit?";
+        break;
+    case 5:
+        return "Okay, goodbye. Quit?";
+        break;
+    default:
+        return "Exiting HelpDesk. Are you sure you want to quit?";
+    }
+
+}
+
+class Blocks {		//class for blocks or modules of AAOffice
+public:
+    string timer(), notepad(), extra(), credits();		//function prototypes
+};
+
+string Blocks::credits() {              //generating random response in each case along with necessary menu information about modules
+    Responses r;
+    return r.genResp() + "\n\nCREDITS\nAyesha Tahir\tBSCS-10A\nAzka Khan\tBSCS-10A\nLibrary\t\tNANA";
+}
+
+string Blocks::timer() {
+    Responses r;
+    return r.genResp() + "\n\nABOUT POMOTIMER:\nA timer designed to utilize the infamous scientifically proven time management and productivity method called 'Pomodoro'.";
+}
+
+
+string Blocks::notepad() {
+    
+    Responses r;
+    return r.genResp() + "\n\nABOUT BRAINSCAPE\nAn app designed to help you view the calendar, set reminders, organize your to-do list and use a simple notepad.";
+}
+
+string Blocks::extra() {
+    Responses r;
+    return r.genResp() + "\n\nABOUT REFLECT\nThis is an app which is designed to help students evaluate their goals and get motivated in order to complete their goals.";
+}
+
+
+namespace demo              //gui programming start
+{
+    using namespace nana;
+    namespace fs = std::filesystem;
+    namespace fs_ext = nana::filesystem_ext;
+        
+    class widget_show : public form         //derived class for displaying widgets
+    {
+        place        place_{ *this };
+
+        timer        timer_;
+
+        group        simple_{ *this,  "<bold=true, color=0xff0000>HelpDesk</>", true /*formated*/ },        //setting div's
+            comboxes_{ simple_,  "<bold=true>FAQ's/Study Resources</>", true },
+            buttons2_{ simple_,  "<bold=true>AAOffice Features</>", true },
+            labels_{ simple_,  "<bold=true>Meet</> <bold=true, color=0xff0000>IRIS</>", true };
+
+        combox    cb_e{ comboxes_,  ("IRIS") },         //creating and setting comboxes names
+            cb_e2{ comboxes_,  ("Study stress") },
+            cb_e3{ comboxes_,  ("Study tips") },
+            cb_e4{ comboxes_,  ("Study audio") },
+            cb_e5{ comboxes_,  ("Scholarships") };
+
+        button b_timer{ buttons2_, ("POMOTimer") },     //creating and setting buttons names
+            b_calender{ buttons2_, ("Calender") },
+            b_r{ buttons2_, ("BrainScape") },
+            b_g{ buttons2_, ("REFLECT") }, 
+            b_c{ buttons2_, ("Credits") };
+
+        label            lab{ labels_ };            //creation of label
+    
+    public:
+        widget_show()           //setting form details
+            : form(API::make_center(650, 300), appear::decorate<appear::sizable>())         //setting form dimensions along with responsiveness
+        {
+            nana::API::track_window_size(*this, { 300,300 }, false); //minimum
+            this->caption(("HelpDesk v1.0"));       //setting window title
+            place_.div(R"(vertical
+                                   <weight=30% min=260 <weight=10> <simples gap=3 margin=5> >
+                                   <weight=20 tab >
+                                   <tab_frame>        )");
+            place_["simples"] << simple_;
+            simple_.div("vertical all   min=260 gap=3 margin=5");       //setting general div settings for all widgets
+            simple_["all"] << labels_  << comboxes_ << buttons2_;       //setting order of widgets
+
+            _m_init_buttons();          //setting button details
+            _m_init_labels();           //setting label details
+            _m_init_comboxs();          //setting combox details
+
+            this->events().unload([this](const arg_unload& ei)          //generation of msgbox upon clicking cross
+                {
+                    msgbox mb(*this, ("Quit"), msgbox::yes_no);     //msgbox of type question with "yes\no" options + setting title of msgbox window
+                    Outro o;            //creation of outro object
+                    mb.icon(mb.icon_question) << (o.genResp());     //call random outro response for msgbox content
+                    ei.cancel = (mb() == mb.pick_no);       //quitting app upon choosing no
+                });
+            place_.collocate();
+        };
+
+    private:
+        void _m_init_buttons()      //buttons details
+        {
+            Blocks b;           //creation of button object 
+            buttons2_.div("buttons min=25 gap=5 margin=3");     //setting button div's
+            buttons2_["buttons"] << b_timer << b_r << b_g << b_c;       //setting order of buttons
+
+            msgbox mb5{ *this,  "What is POMOTimer?" };         //creating and setting msgbox titles
+            msgbox mb7{ *this,  "What is BrainScape?" };
+            msgbox mb8{ *this,  "What is REFLECT?" };
+            msgbox mb9{ *this,  "Credits" };
+
+            mb5.icon(mb5.icon_information) << b.timer();        //setting msgboxes' types as information and calling members functions for displaying information about modules
+            mb7.icon(mb7.icon_information) << b.notepad();
+            mb8.icon(mb8.icon_information) << b.extra();
+            mb9.icon(mb9.icon_information) << b.credits();
+
+            b_timer.events().click(mb5);            //creating events for calling msgboxes upon cliking on buttons
+            b_r.events().click(mb7);
+            b_g.events().click(mb8);
+            b_c.events().click(mb9);            
+        }
+       
+        void _m_init_comboxs()              //combox details
+        {
+            comboxes_.div("buttons  min=25 gap=5 margin=3");        //setting arrangement of comboxes
+            comboxes_["buttons"] << cb_e << cb_e2 << cb_e3 << cb_e4 << cb_e5;       //setting order of comboxes
+
+            cb_e.push_back(("About"));      //creating drop down option for about IRIS
+            msgbox mb(*this, ("Who is IRIS?"));     //msgbox for information about IRIS
+            mb.icon(mb.icon_information);           //msgbox of type information
+            cb_e.events().selected([this, mb](const nana::arg_combox& acmb) mutable         //displaying content upon drop down option selection for "About IRIS"
+                {
+                    mb << ("I am IRIS, a mini system designed to assist you with Frequently Asked Question (FAQ's) regarding study resources. You can also use the given options to access information about the multiple modules/features which AAOffice v1.0 contains.");
+                    mb();
+                    //Clear the buffer, otherwise the mb shows the text generated in
+                    //the last selected event.
+                    mb.clear();
+                    cb_e.push_back(("About IRIS"));     //creating drop down option to allow user to access options repeatedly
+                    cb_e.erase(2);              //same option as combox made unavailable
+                });
+
+            cb_e4.push_back(("Start study audio"));     //creating drop down option for study music
+            msgbox mb2(*this, ("Start music/white noise"));     //msgbox for information about IRIS
+            mb2.icon(mb2.icon_information);         //msgbox of type information
+            cb_e4.events().selected([this, mb2](const nana::arg_combox& acmb) mutable       //displaying content upon drop down option selection for study music
+                {
+                    mb2 << ("Started music/white noise...\nResources: White noise, Lofi Girl Study Beats Radio");       //displaying message
+                    system("start \"\" \"https://www.youtube.com/watch?v=5qap5aO4i9A&ab_channel=LofiGirl\"");       //opening links for resources
+                    system("start \"\" \"https://www.youtube.com/watch?v=nMfPqeZjc2c&t=2554s\"");
+                    mb2();
+                    //Clear the buffer, otherwise the mb shows the text generated in
+                    //the last selected event.
+                    mb2.clear();
+                    cb_e4.push_back(("Study audio"));       //creating drop down option to allow user to access options repeatedly
+                    cb_e4.erase(2);                 //same option as combox made unavailable
+                    
+                });
+
+            cb_e2.push_back(("Study stress help"));     //creating drop down option for study stress help
+            msgbox mb3(*this, ("How to deal with study stress?"));      //msgbox for study stress help
+            mb3.icon(mb3.icon_information);     //msgbox of type information
+            cb_e2.events().selected([this, mb3](const nana::arg_combox& acmb) mutable       //displaying content upon drop down option selection for study stress help
+                {
+                    mb3 << ("Opened stress management help resources...\nResources: BestColleges, Med School Insiders(YouTube)");        //displaying message
+                    system("start \"\" \"https://www.youtube.com/watch?v=Bk2-dKH2Ta4\"");               //opening links for resources
+                    system("start \"\" \"https://www.bestcolleges.com/resources/balancing-stress/\"");
+                    mb3();
+                    //Clear the buffer, otherwise the mb shows the text generated in
+                    //the last selected event.
+                    mb3.clear();
+                    cb_e2.push_back(("Study stress"));          //creating drop down option to allow user to access options repeatedly
+                    cb_e2.erase(2);                             //same option as combox made unavailable
+                });
+
+            cb_e3.push_back(("Study tips resources"));          //creating drop down option for study tips
+            msgbox mb4(*this, ("How to study effectively?"));   //msgbox for study tips
+            mb4.icon(mb4.icon_information);                     //msgbox of type information
+            cb_e3.events().selected([this, mb4](const nana::arg_combox& acmb) mutable           //displaying content upon drop down option selection for study tips
+                {
+                    mb4 << ("Loaded study tips...\nResources: StudyQuill(YouTube), Oxford Learning, College Info Geek");            //displaying message
+                    system("start \"\" \"https://www.youtube.com/watch?v=ZbjjwgiVQKk&ab_channel=studyquillstudyquill\"");           //opening links for resources
+                    system("start \"\" \"https://www.oxfordlearning.com/best-methods-of-self-study-for-students/\"");
+                    system("start \"\" \"https://collegeinfogeek.com/study-tips/\"");
+                    mb4();
+                    //Clear the buffer, otherwise the mb shows the text generated in
+                    //the last selected event.
+                    mb4.clear();
+                    cb_e3.push_back(("Study tips"));        //creating drop down option to allow user to access options repeatedly
+                    cb_e3.erase(2);                         //same option as combox made unavailable
+                });
+
+            cb_e5.push_back(("Scholarships info"));     //creating drop down option for scholarships information     
+            msgbox mb5(*this, ("Information about scholarships"));      //msgbox for scholarships info
+            mb5.icon(mb5.icon_information);         //msgbox of type information
+            cb_e5.events().selected([this, mb5](const nana::arg_combox& acmb) mutable           //displaying content upon drop down option selection for scholarships information
+                {
+                    mb5 << ("Opened scholarship information website...\nResources: HEC Website Pakistan");          //displaying message
+                    system("start \"\" \"https://www.hec.gov.pk/english/scholarshipsgrants/Pages/internationalScholarships.aspx\"");        //opening links for resources
+                    mb5();
+                    //Clear the buffer, otherwise the mb shows the text generated in
+                    //the last selected event.
+                    mb5.clear();
+                    cb_e5.push_back(("Scholarships"));          //creating drop down option to allow user to access options repeatedly
+                    cb_e5.erase(2);                             //same option as combox made unavailable
+                });
+        }
+
+        void _m_init_labels()       //labels details
+        {
+            Intro i;        //creation of intro object
+            labels_.div("buttons gap=5 min=25 margin=3");       //setting labels arrangment
+            labels_["buttons"] << (i.genResp()) << lab;         //generating random intro by calling member function
+            lab.format(true);           //setting formatting for label            
+        }  
+    };      //end class widget_show
+
+    void go() {         //function to execute GUI
+        widget_show wdshow;
+        wdshow.show();
+        exec();
+    }
+}
+int main() {            //main start
+    demo::go();         //start up interface for app
+}       //main end
